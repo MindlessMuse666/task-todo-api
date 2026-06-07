@@ -3,9 +3,9 @@ services:
     image: postgres:15-alpine
     container_name: todo_postgres
     environment:
-      DB: todo_db
-      POSTGRES_USER: db_user
-      POSTGRES_PASSWORD: db_pass
+      POSTGRES_DB: todo_db
+      POSTGRES_USER: todo_db_user
+      POSTGRES_PASSWORD: todo_db_pass
 
     ports:
       - "5432:5432"

@@ -1,9 +1,9 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: todo-postgres
+    container_name: todo_postgres
     environment:
-      DB: db
+      DB: todo_db
       POSTGRES_USER: db_user
       POSTGRES_PASSWORD: db_pass
 

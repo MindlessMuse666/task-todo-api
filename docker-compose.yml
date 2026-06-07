@@ -1,18 +1,18 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: task-todo-postgres
+    container_name: todo-postgres
     environment:
       DB: db
       POSTGRES_USER: db_user
       POSTGRES_PASSWORD: db_pass
 
-      ports:
-        "5432:5432"
+    ports:
+      - "5432:5432"
 
-      volumes:
-        -db_data:/var/lib/postgresql/data
-        -./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
 
       # healthcheck:
       #   test: ["CMD-SHELL", "db_isready -U db_user -d db"]

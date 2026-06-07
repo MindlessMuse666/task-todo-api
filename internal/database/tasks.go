@@ -1,3 +1,4 @@
+// TODO: задокументировать модуль и методы
 package database
 
 import (
@@ -20,6 +21,7 @@ func NewTaskStore(db *sqlx.DB) *TaskStore {
 func (s *TaskStore) GetAll() ([]models.Task, error) {
 	tasks := []models.Task{}
 
+	// TODO: вынести в отдельный скрипт
 	query := `
 SELECT id, title, description, completed, created_at, updated_at
 FROM tasks
@@ -36,6 +38,7 @@ ORDER BY created_at DESC;
 func (s *TaskStore) GetByID(id int) (*models.Task, error) {
 	var task models.Task
 
+	// TODO: вынести в отдельный скрипт
 	query := `
 SELECT id, title, description, completed, created_at, updated_at
 FROM tasks

@@ -1,3 +1,4 @@
+-- TODO: разделить запросы по разным SQL-скриптам
 DROP TABLE IF EXISTS tasks;
 
 CREATE TABLE tasks (

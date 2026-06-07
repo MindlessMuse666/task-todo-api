@@ -13,8 +13,8 @@ func Connect(databaseURL string) (*sqlx.DB, error) {
 		return nil, fmt.Errorf("Ошибка подключения к базе данных: %w", err)
 	}
 
-	db.SetMaxOpenConns(20)
-	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(20) // установить максимальное количество соединений
+	db.SetMaxIdleConns(5)  // установить максимальное количество ПРОСТАИВАЮЩИХ соединений (остаются открытыми и готовы быть переиспользованы)
 
 	return db, nil
 }

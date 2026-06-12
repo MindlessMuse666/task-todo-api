@@ -64,7 +64,7 @@ func (s *TaskStore) Create(input models.CreateTaskInput) (*models.Task, error) {
 	// TODO(MindlessMuse): вынести в отдельный скрипт
 	query := `
 INSERT INTO tasks(title, description, completed, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5);
 returning id, title, description, completed, created_at, updated_at;`
 
 	now := time.Now()
@@ -74,4 +74,41 @@ returning id, title, description, completed, created_at, updated_at;`
 	}
 
 	return &task, nil
+}
+
+// Update обновляет существующую задачу по id и возвращает ее.
+func (s *TaskStore) Update(id int, input models.UpdateTaskInput) (*models.Task, error) {
+	task, err := s.GetByID(id)
+	if err != nil {
+		return nil, fmt.Errorf("Задачи с id=%d не существует: %w", id, err)
+	}
+
+	if input.Title != nil {
+		task.Title = *input.Title
+	}
+
+	if input.Description != nil {
+		task.Description = *input.Description
+	}
+
+	if input.Completed != nil {
+		task.Completed = *input.Completed
+	}
+
+	task.UpdatedAt = time.Now()
+
+	// TODO(MindlessMuse): вынести в отдельный скрипт
+	query := `
+UPDATE tasks
+SET title = $1, description = $2, completed = $3, updated_at = $4
+WHERE id = $5;
+returning id, title, description, completed, created_at, updated_at;`
+
+	var updatedTask models.Task
+
+	if err = s.db.QueryRowx(query, task.Title, task.Description, task.Completed, task.UpdatedAt, id).StructScan(&updatedTask); err != nil {
+		return nil, fmt.Errorf("Ошибка обновления полей задачи: %w", err)
+	}
+
+	return &updatedTask, nil
 }

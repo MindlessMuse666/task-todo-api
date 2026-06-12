@@ -58,20 +58,79 @@ func (h *Handlers) CreateTask(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Некорректные отправленные данные")
 		return
 	}
-
 	if strings.TrimSpace(input.Title) == "" {
 		respondWithError(w, http.StatusBadRequest, "Заголовок задачи обязателен")
 		return
 	}
 
 	task, err := h.store.Create(input)
-
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	respondWithJSON(w, http.StatusCreated, task)
+}
+
+func (h *Handlers) UpdateTask(w http.ResponseWriter, r *http.Request) {
+	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/tasks/"), "/")
+
+	idStr := pathParts[0]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Некорректный ID задачи")
+		return
+	}
+
+	var input models.UpdateTaskInput
+
+	err = json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Некорректные отправленные данные")
+		return
+	}
+
+	if input.Title != nil && strings.TrimSpace(*input.Title) == "" {
+		respondWithError(w, http.StatusBadRequest, "Заголовок задачи обязателен")
+		return
+	}
+
+	task, err := h.store.Update(id, input)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			respondWithError(w, http.StatusNotFound, err.Error())
+		} else {
+			respondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, task)
+}
+
+func (h *Handlers) DeleteTask(w http.ResponseWriter, r *http.Request) {
+	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/tasks/"), "/")
+
+	idStr := pathParts[0]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Некорректный ID задачи")
+		return
+	}
+
+	err = h.store.Delete(id)
+	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			respondWithError(w, http.StatusNotFound, err.Error())
+		} else {
+			respondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"message": "success"})
 }
 
 func respondWithJSON(w http.ResponseWriter, statusCode int, payload any) {

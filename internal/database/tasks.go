@@ -76,7 +76,7 @@ returning id, title, description, completed, created_at, updated_at;`
 	return &task, nil
 }
 
-// Update обновляет существующую задачу по id и возвращает ее.
+// Update обновляет задачу по id и возвращает ее.
 func (s *TaskStore) Update(id int, input models.UpdateTaskInput) (*models.Task, error) {
 	task, err := s.GetByID(id)
 	if err != nil {
@@ -111,4 +111,27 @@ returning id, title, description, completed, created_at, updated_at;`
 	}
 
 	return &updatedTask, nil
+}
+
+// Delete удаляет задачу по id и возвращает nil при успехе.
+func (s *TaskStore) Delete(id int) error {
+	query := `
+DELETE FROM tasks
+WHERE id = $1;`
+
+	result, err := s.db.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("Ошибка удаления задачи с id=%d: %w", id, err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("Ошибка получения количество удаленных строк: %w", err)
+	}
+
+	if rows == 0 {
+		return fmt.Errorf("Задача с id=%d не найдена: %w", id, err)
+	}
+
+	return nil
 }

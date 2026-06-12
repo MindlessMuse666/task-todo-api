@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/MindlessMuse666/task-todo-api/internal/database"
+	"github.com/MindlessMuse666/task-todo-api/internal/models"
 )
 
 type Handlers struct {
@@ -48,6 +49,29 @@ func (h *Handlers) GetTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, task)
+}
+
+func (h *Handlers) CreateTask(w http.ResponseWriter, r *http.Request) {
+	var input models.CreateTaskInput
+
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Некорректные отправленные данные")
+		return
+	}
+
+	if strings.TrimSpace(input.Title) == "" {
+		respondWithError(w, http.StatusBadRequest, "Заголовок задачи обязателен")
+		return
+	}
+
+	task, err := h.store.Create(input)
+
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusCreated, task)
 }
 
 func respondWithJSON(w http.ResponseWriter, statusCode int, payload any) {

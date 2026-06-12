@@ -1,4 +1,4 @@
-// TODO(MindlessMuse): задокументировать модуль и докстринги
+// Package handlers содержит HTTP-обработчики для REST API задач.
 package handlers
 
 import (
@@ -11,14 +11,17 @@ import (
 	"github.com/MindlessMuse666/task-todo-api/internal/models"
 )
 
+// Handlers хранит зависимости обработчиков (слой доступа к данным).
 type Handlers struct {
 	store *database.TaskStore
 }
 
+// NewHandlers создаёт новый экземпляр Handlers.
 func NewHandlers(store *database.TaskStore) *Handlers {
 	return &Handlers{store: store}
 }
 
+// GetAllTasks возвращает список всех задач.
 func (h *Handlers) GetAllTasks(w http.ResponseWriter, r *http.Request) {
 	tasks, err := h.store.GetAll()
 
@@ -30,6 +33,7 @@ func (h *Handlers) GetAllTasks(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, tasks)
 }
 
+// GetTask возвращает задачу по идентификатору из URL.
 func (h *Handlers) GetTask(w http.ResponseWriter, r *http.Request) {
 	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/tasks/"), "/")
 
@@ -51,6 +55,7 @@ func (h *Handlers) GetTask(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, task)
 }
 
+// CreateTask создаёт новую задачу из JSON-тела запроса.
 func (h *Handlers) CreateTask(w http.ResponseWriter, r *http.Request) {
 	var input models.CreateTaskInput
 
@@ -72,6 +77,7 @@ func (h *Handlers) CreateTask(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, task)
 }
 
+// UpdateTask обновляет существующую задачу по ID.
 func (h *Handlers) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/tasks/"), "/")
 
@@ -109,6 +115,7 @@ func (h *Handlers) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, task)
 }
 
+// DeleteTask удаляет задачу по ID.
 func (h *Handlers) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/tasks/"), "/")
 
@@ -133,12 +140,16 @@ func (h *Handlers) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, map[string]string{"message": "success"})
 }
 
+/* ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ */
+
+// respondWithJSON устанавливает заголовки и сериализует payload в JSON.
 func respondWithJSON(w http.ResponseWriter, statusCode int, payload any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(payload)
 }
 
+// respondWithError отправляет JSON-ответ с ошибкой.
 func respondWithError(w http.ResponseWriter, statusCode int, message string) {
 	respondWithJSON(w, statusCode, map[string]string{"error": message})
 }

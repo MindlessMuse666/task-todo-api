@@ -65,7 +65,7 @@ func (s *TaskStore) Create(input models.CreateTaskInput) (*models.Task, error) {
 	query := `
 INSERT INTO tasks(title, description, completed, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5);
-returning id, title, description, completed, created_at, updated_at;`
+RETURNING id, title, description, completed, created_at, updated_at;`
 
 	now := time.Now()
 
@@ -102,7 +102,7 @@ func (s *TaskStore) Update(id int, input models.UpdateTaskInput) (*models.Task, 
 UPDATE tasks
 SET title = $1, description = $2, completed = $3, updated_at = $4
 WHERE id = $5;
-returning id, title, description, completed, created_at, updated_at;`
+RETURNING id, title, description, completed, created_at, updated_at;`
 
 	var updatedTask models.Task
 
